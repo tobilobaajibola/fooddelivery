@@ -11,6 +11,8 @@ import React from 'react';
 import {YellowBox} from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {enableScreens} from 'react-native-screens';
+import {Provider} from 'react-redux';
+import store from './src/store';
 
 enableScreens();
 
@@ -26,9 +28,11 @@ import MainNavigator from './src/navigation/MainNavigatorB';
 // APP
 function App() {
   return (
-    <SafeAreaProvider>
-      <MainNavigator />
-    </SafeAreaProvider>
+    <Provider store={store}>
+      <SafeAreaProvider>
+        <MainNavigator />
+      </SafeAreaProvider>
+    </Provider>
   );
 }
 

@@ -16,12 +16,15 @@ import {
   View,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import PropTypes from 'prop-types';
 
 // import components
 import ContainedButton from '../../components/buttons/ContainedButton';
 import GradientContainer from '../../components/gradientcontainer/GradientContainer';
 import UnderlinePasswordInput from '../../components/textinputs/UnderlinePasswordInput';
 import UnderlineTextInput from '../../components/textinputs/UnderlineTextInput';
+import * as actions from '../../store/actions';
+import {connect} from 'react-redux';
 
 // import colors, layout
 import Colors from '../../theme/colors';
@@ -101,7 +104,7 @@ const styles = StyleSheet.create({
 });
 
 // SignInB
-export default class SignInB extends Component {
+class SignInB extends Component {
   constructor(props) {
     super(props);
 
@@ -114,7 +117,7 @@ export default class SignInB extends Component {
     };
   }
 
-  emailChange = text => {
+  emailChange = (text) => {
     this.setState({
       email: text,
     });
@@ -127,7 +130,7 @@ export default class SignInB extends Component {
     });
   };
 
-  passwordChange = text => {
+  passwordChange = (text) => {
     this.setState({
       password: text,
     });
@@ -147,62 +150,45 @@ export default class SignInB extends Component {
     });
   };
 
-  focusOn = nextFiled => () => {
+  focusOn = (nextFiled) => () => {
     if (nextFiled) {
       nextFiled.focus();
     }
   };
 
-  navigateTo = screen => () => {
+  navigateTo = (screen) => () => {
     const {navigation} = this.props;
     navigation.navigate(screen);
   };
 
   signIn = () => {
+    // this.setState(
+    //   {
+    //     emailFocused: 'tobiclement@mail.com',
+    //     passwordFocused: 'test',
+    //   },
+    //   // this.navigateTo('HomeNavigator'),
+    // );
 
-    this.setState(
-      {
-        emailFocused: "tobiclement@mail.com",
-        passwordFocused: "test"
-      },
-      // this.navigateTo('HomeNavigator'),
-    );
+    const data = {
+      email: this.state.email,
+      password: this.state.password,
+    };
 
-    this.onFetchLoginRecords();
-
+    this.onFetchLoginRecords(data);
   };
 
-  async onFetchLoginRecords() {
-    var data = {
-      email: this.state.emailFocused,
-      password: this.state.passwordFocused
-    };
+  onFetchLoginRecords = async (data) => {
     try {
-      let response = await fetch(
-        "http://xnativesfoods.com/api/login/",
-        {
-          method: "POST",
-          headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(data)
-        }
-      )
-      .then(response => response.text())
-        .then(result => alert(result))
-        .catch(error => console.log('error', error));
-      if (response.status >= 200 && response.status < 300) {
-        
-        // alert(response);
-        // alert(this.state.emailFocused);
+      let response = await this.props.login(data);
+      console.log(response);
+      if (response) {
+        this.navigateTo('HomeNavigator');
       }
     } catch (errors) {
-
       alert(errors);
     }
-  }
-
+  };
 
   render() {
     const {
@@ -228,7 +214,7 @@ export default class SignInB extends Component {
 
               <View style={styles.form}>
                 <UnderlineTextInput
-                  onRef={r => {
+                  onRef={(r) => {
                     this.email = r;
                   }}
                   onChangeText={this.emailChange}
@@ -244,11 +230,11 @@ export default class SignInB extends Component {
                   borderColor={INPUT_BORDER_COLOR}
                   focusedBorderColor={INPUT_FOCUSED_BORDER_COLOR}
                   inputContainerStyle={styles.inputContainer}
-                  value={this.emailFocused}
+                  value={email}
                 />
 
                 <UnderlinePasswordInput
-                  onRef={r => {
+                  onRef={(r) => {
                     this.password = r;
                   }}
                   onChangeText={this.passwordChange}
@@ -266,6 +252,7 @@ export default class SignInB extends Component {
                   toggleText={secureTextEntry ? 'Show' : 'Hide'}
                   onTogglePress={this.onTogglePress}
                   inputContainerStyle={styles.inputContainer}
+                  value={password}
                 />
 
                 <View style={styles.buttonContainer}>
@@ -336,3 +323,24 @@ export default class SignInB extends Component {
     );
   }
 }
+
+const mapStateToProps = (state) => ({
+  error: state.auth.error,
+  isAuthenticated: state.auth.token !== null,
+  loading: state.auth.loading,
+  user: state.auth.user,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  login: (data) => dispatch(actions.login(data)),
+});
+
+SignInB.propTypes = {
+  error: PropTypes.string,
+  isAuthenticated: PropTypes.bool,
+  loading: PropTypes.bool,
+  navigation: PropTypes.object,
+  login: PropTypes.func,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(SignInB);
