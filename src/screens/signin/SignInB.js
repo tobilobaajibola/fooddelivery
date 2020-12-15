@@ -161,32 +161,18 @@ class SignInB extends Component {
     navigation.navigate(screen);
   };
 
-  signIn = () => {
-    // this.setState(
-    //   {
-    //     emailFocused: 'tobiclement@mail.com',
-    //     passwordFocused: 'test',
-    //   },
-    //   // this.navigateTo('HomeNavigator'),
-    // );
-
-    const data = {
-      email: this.state.email,
-      password: this.state.password,
-    };
-
-    this.onFetchLoginRecords(data);
-  };
-
-  onFetchLoginRecords = async (data) => {
+  signIn = async () => {
     try {
+      const data = {
+        email: this.state.email,
+        password: this.state.password,
+      };
+
       let response = await this.props.login(data);
       console.log(response);
-      if (response) {
-        this.navigateTo('HomeNavigator');
-      }
-    } catch (errors) {
-      alert(errors);
+      this.props.navigation.navigate('HomeNavigator');
+    } catch (e) {
+      alert(e);
     }
   };
 
@@ -260,6 +246,8 @@ class SignInB extends Component {
                     onPress={this.signIn}
                     color={Colors.accentColor}
                     title={'Sign in'.toUpperCase()}
+                    loading={this.props.loading}
+                    disabled={!email || !password || this.props.loading}
                   />
                 </View>
 

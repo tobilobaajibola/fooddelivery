@@ -6,12 +6,27 @@ export const checkLoginStatus = async (hideSplashScreen, navigation) => {
 
     if (!token) {
       hideSplashScreen();
-      return navigation.navigate('login');
+      return navigation.navigate('Welcome');
     }
     hideSplashScreen();
-    return navigation.navigate('home');
+    return navigation.navigate('HomeNavigator');
   } catch (e) {
     hideSplashScreen();
-    return navigation.navigate('login');
+    return navigation.navigate('Welcome');
+  }
+};
+
+export const checkOnboardStatus = async (hideSplashScreen, navigation) => {
+  try {
+    const onboarded = await AsyncStorage.getItem('onboarding');
+    if (onboarded) {
+      checkLoginStatus(hideSplashScreen, navigation);
+    } else {
+      hideSplashScreen();
+      return navigation.navigate('onboarding');
+    }
+  } catch (e) {
+    hideSplashScreen();
+    return navigation.navigate('onboarding');
   }
 };

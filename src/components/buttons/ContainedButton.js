@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import {StyleSheet, View, ViewStyle} from 'react-native';
+import {StyleSheet, View, ViewStyle, ActivityIndicator} from 'react-native';
 import {Ionicons as Icon, FontAwesome as FAIcon} from '@expo/vector-icons';
 
 // import components
@@ -72,6 +72,8 @@ type Props = {
   title: string,
   titleColor: string,
   rounded: boolean,
+  loading: boolean,
+  disabled: boolean,
 };
 
 // ContainedButton
@@ -88,6 +90,8 @@ const ContainedButton = ({
   title,
   titleColor,
   rounded,
+  loading,
+  disabled,
 }: Props) => (
   <View
     style={[
@@ -97,9 +101,10 @@ const ContainedButton = ({
       rounded && styles.rounded,
       height && rounded && {borderRadius: height / 2},
       buttonStyle,
+      disabled ? {opacity: 0.6} : {opacity: 1},
     ]}>
     <TouchableItem
-      onPress={onPress}
+      onPress={!disabled ? onPress : null}
       activeOpacity={activeOpacity}
       // borderless
     >
@@ -114,13 +119,20 @@ const ContainedButton = ({
             <Icon name={iconName} size={18} color={iconColor} />
           </View>
         )}
+
         <ButtonText
           style={[
             styles.title,
             titleColor && {color: titleColor},
             iconName && {paddingLeft: 8},
           ]}>
-          {title !== undefined ? title.toUpperCase() : 'BUTTON'}
+          {loading ? (
+            <ActivityIndicator color="#fff" size="small" />
+          ) : title !== undefined ? (
+            title.toUpperCase()
+          ) : (
+            'BUTTON'
+          )}
         </ButtonText>
       </View>
     </TouchableItem>
