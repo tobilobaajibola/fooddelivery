@@ -15,15 +15,42 @@ const getProductFail = (error) => ({
   error,
 });
 
-export const getProducts = (data) => async (dispatch) => {
+export const getProducts = () => async (dispatch) => {
   dispatch(getProductStart());
 
   try {
-    const response = await axios.post('/products', data);
+    const response = await axios.get('/products');
     console.log(response.data);
     dispatch(getProductSuccess(response.data.data.data));
     return 'success';
   } catch (e) {
     dispatch(getProductFail(e.message));
+  }
+};
+
+const getCategoriesStart = () => ({
+  type: actionTypes.GET_CATEGORIES_START,
+});
+
+const getCategoriesSuccess = (data) => ({
+  type: actionTypes.GET_CATEGORIES_SUCCESS,
+  data,
+});
+
+const getCategoriesFail = (error) => ({
+  type: actionTypes.GET_CATEGORIES_FAIL,
+  error,
+});
+
+export const getCategories = () => async (dispatch) => {
+  dispatch(getCategoriesStart());
+
+  try {
+    const response = await axios.get('/categories');
+    console.log(response.data);
+    dispatch(getCategoriesSuccess(response.data.data));
+    return 'success';
+  } catch (e) {
+    dispatch(getCategoriesFail(e.message));
   }
 };

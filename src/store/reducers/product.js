@@ -3,23 +3,40 @@ import * as actionTypes from '../actions/types';
 
 const initialState = {
   error: null,
-  loading: false,
+  loadingProducts: false,
+  loadingCategories: false,
   products: null,
+  categories: null,
 };
 
 const getProductsStart = (state) =>
-  updateObject(state, {error: null, loading: true});
+  updateObject(state, {error: null, loadingProducts: true});
 
 const getProductsSuccess = (state, action) =>
   updateObject(state, {
-    loading: false,
+    loadingProducts: false,
     products: action.data,
   });
 
 const getProductsFail = (state, action) =>
   updateObject(state, {
     error: action.error,
-    loading: false,
+    loadingProducts: false,
+  });
+
+const getCategoriesStart = (state) =>
+  updateObject(state, {error: null, loadingCategories: true});
+
+const getCategoriesSuccess = (state, action) =>
+  updateObject(state, {
+    loadingCategories: false,
+    categories: action.data,
+  });
+
+const getCategoriesFail = (state, action) =>
+  updateObject(state, {
+    error: action.error,
+    loadingCategories: false,
   });
 
 const productReducer = (state = initialState, action) => {
@@ -30,6 +47,12 @@ const productReducer = (state = initialState, action) => {
       return getProductsSuccess(state, action);
     case actionTypes.GET_PRODUCTS_FAIL:
       return getProductsFail(state, action);
+    case actionTypes.GET_CATEGORIES_START:
+      return getCategoriesStart(state);
+    case actionTypes.GET_CATEGORIES_SUCCESS:
+      return getCategoriesSuccess(state, action);
+    case actionTypes.GET_CATEGORIES_FAIL:
+      return getCategoriesFail(state, action);
     default:
       return state;
   }

@@ -7,6 +7,7 @@
 
 // import dependencies
 import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 import {
   I18nManager,
   Image,
@@ -15,9 +16,12 @@ import {
   StyleSheet,
   Text,
   View,
+  BackHandler,
+  Alert,
 } from 'react-native';
 import {MaterialCommunityIcons as Icon} from '@expo/vector-icons';
 import Swiper from 'react-native-swiper/src';
+import AsyncStorage from '@react-native-community/async-storage';
 
 // import components
 import GradientContainer from '../../components/gradientcontainer/GradientContainer';
@@ -174,6 +178,29 @@ export default class OnboardingB extends Component {
     };
   }
 
+  backAction = () => {
+    Alert.alert('Hold on!', 'Are you sure you want to exit?', [
+      {
+        text: 'Cancel',
+        onPress: () => null,
+        style: 'cancel',
+      },
+      {text: 'YES', onPress: () => BackHandler.exitApp()},
+    ]);
+    return true;
+  };
+
+  componentDidMount() {
+    this.backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      this.backAction,
+    );
+  }
+
+  componentWillUnmount() {
+    this.backHandler.remove();
+  }
+
   onIndexChanged = (index) => {
     let activeIndex;
     if (isRTL) {
@@ -194,9 +221,9 @@ export default class OnboardingB extends Component {
     this.swiper.scrollBy(1, true);
   };
 
-  navigateTo = (screen) => () => {
-    const {navigation} = this.props;
-    navigation.navigate(screen);
+  skipOnboarding = () => {
+    AsyncStorage.setItem('Onboarding', 'true');
+    this.props.navigation.navigate('Welcome');
   };
 
   render() {
@@ -251,7 +278,7 @@ export default class OnboardingB extends Component {
                   </View>
                 </TouchableItem>
               ) : (
-                <TouchableItem onPress={this.navigateTo('Welcome')}>
+                <TouchableItem onPress={() => this.skipOnboarding()}>
                   <View style={styles.actionButton}>
                     <Text style={styles.buttonText}>
                       {'skip'.toUpperCase()}
@@ -289,7 +316,7 @@ export default class OnboardingB extends Component {
                   </View>
                 </TouchableItem>
               ) : (
-                <TouchableItem onPress={this.navigateTo('Welcome')}>
+                <TouchableItem onPress={() => this.skipOnboarding()}>
                   <View style={styles.actionButton}>
                     <Text style={styles.buttonText}>
                       {'done'.toUpperCase()}
@@ -304,3 +331,7 @@ export default class OnboardingB extends Component {
     );
   }
 }
+
+OnboardingB.propTypes = {
+  navigation: PropTypes.object,
+};

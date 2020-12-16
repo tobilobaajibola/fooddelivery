@@ -17,7 +17,12 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ActivityIndicator,
+  RefreshControl,
+  Dimensions,
 } from 'react-native';
+import PropTypes from 'prop-types';
+import * as actions from '../../store/actions';
 
 // import utils
 import getImgSource from '../../utils/getImgSource.js';
@@ -30,9 +35,15 @@ import {Heading6} from '../../components/text/CustomText';
 
 // import colors
 import Colors from '../../theme/colors';
+import {connect} from 'react-redux';
 
 // HomeB Config
 const imgHolder = require('../../assets/img/imgholder.png');
+
+const {width, height} = Dimensions.get('window');
+
+const heightPercentage = (perc) => (height / 100) * perc;
+const widthPercentage = (perc) => (width / 100) * perc;
 
 // HomeB Styles
 const styles = StyleSheet.create({
@@ -92,85 +103,80 @@ const styles = StyleSheet.create({
     color: Colors.white,
     letterSpacing: 0.6,
   },
+  loaderContainer: {
+    position: 'absolute',
+    width: widthPercentage(100),
+    height: heightPercentage(100),
+    flex: 1,
+    backgroundColor: 'transparent',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  loaderInner: {
+    width: 100,
+    height: 100,
+    backgroundColor: Colors.primaryColor,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+  },
 });
 
 // HomeB
-export default class HomeB extends Component {
-  // constructor(props) {
-  //   super(props);
+class HomeB extends Component {
+  constructor(props) {
+    super(props);
 
-  //   this.state = {
-          
-  //     products: [
-  //       {
-  //         image: require('../../assets/img/pizza_1.jpg'),
-  //         name: 'Pizza Margarita 35cm',
-  //         price: 10.99,
-  //         description:
-  //           'Made with San Marzano tomatoes, mozzarella cheese, fresh basil, salt and extra-virgin olive oil',
-  //         qty: 0,
-  //       },
-  //       {
-  //         image: require('../../assets/img/sandwich_2.jpg'),
-  //         name: 'Subway Sandwich',
-  //         price: 8.49,
-  //         description:
-  //           'Ham sandwich with two servings of crisp veggies on freshly baked bread for under 400 calories',
-  //         qty: 0,
-  //       },
-  //       {
-  //         image: require('../../assets/img/cake_1.jpg'),
-  //         name: 'Chocolate Cake',
-  //         price: 4.99,
-  //         description: 'Cake flavored with melted chocolate, cocoa powder',
-  //         qty: 0,
-  //       },
-  //       {
-  //         image: require('../../assets/img/soup_1.jpg'),
-  //         name: 'Roasted Carrot Soup',
-  //         price: 11.99,
-  //         description:
-  //           'Plain greek yogurt, olive oil, garlic, fresh basil, whole peeled tomatoes',
-  //         qty: 0,
-  //       },
-  //     ],
-  //   };
-  // }
+    this.state = {
+      products: [],
+      categories: [],
+      refreshing: false,
+    };
+  }
 
+  componentDidMount() {
+    this.props.getProducts();
+    this.props.getCategories();
+  }
 
-  
-  
-   //Define your state for your component. 
-   state = {
-    //Assing a array to your pokeList state
-    data: [],
-    //Have a loading state where when data retrieve returns data. 
-    loading: true
-}
-
-async componentDidMount() {
-    try {
-      // get products
-      const productsApiCall = await fetch('http://xnativesfoods.com/api/products/');
-      const products = await productsApiCall.json();
-      this.setState({ products: products.data.data, loading: false });
-      // get categories
-      
-        const categoriesApiCall = await fetch('http://xnativesfoods.com/api/categories/');
-        const categories = await categoriesApiCall.json();
-        this.setState({data: categories.data, loading: false});
-       
-    } catch(err) {
-        console.log("Error fetching data-----------", err);
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      prevProps.categories !== this.props.categories ||
+      prevProps.products !== this.props.products
+    ) {
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({
+        categories: this.props.categories,
+        products: this.props.products,
+      });
     }
-}
+  }
 
-  navigateTo = screen => () => {
+  navigateTo = (screen) => () => {
     const {navigation} = this.props;
     navigation.navigate(screen);
   };
 
-  onPressRemove = item => () => {
+  wait = (timeout) => {
+    return new Promise((resolve) => {
+      setTimeout(resolve, timeout);
+    });
+  };
+
+  onRefresh = async () => {
+    this.setState((prevState) => ({refreshing: !prevState}));
+    try {
+      await this.props.getProducts();
+      await this.props.getCategories();
+    } catch (e) {
+      console.log(e);
+    } finally {
+      this.setState((prevState) => ({refreshing: !prevState}));
+    }
+  };
+
+  onPressRemove = (item) => () => {
     let {qty} = item;
     qty -= 1;
 
@@ -187,7 +193,7 @@ async componentDidMount() {
     });
   };
 
-  onPressAdd = item => () => {
+  onPressAdd = (item) => () => {
     const {qty} = item;
     const {products} = this.state;
 
@@ -204,7 +210,7 @@ async componentDidMount() {
   renderProductItem = ({item, index}) => (
     <ProductCard
       // onPress={this.navigateTo('Product', { 'productId': item.image })}
-      onPress={this.navigateTo('Product', {productId: 1 })}
+      onPress={this.navigateTo('Product', {productId: 1})}
       onPressRemove={this.onPressRemove(item)}
       onPressAdd={this.onPressAdd(item)}
       key={index}
@@ -222,8 +228,6 @@ async componentDidMount() {
 
   render() {
     const {categories, products} = this.state;
-    // alert(JSON.stringify(this.state.data));
-    // alert(JSON.stringify(this.state.products));
 
     return (
       <SafeAreaView style={styles.screenContainer}>
@@ -232,8 +236,22 @@ async componentDidMount() {
           barStyle="dark-content"
         />
 
+        {this.props.loading && (
+          <View style={styles.loaderContainer}>
+            <View style={styles.loaderInner}>
+              <ActivityIndicator size="large" color={Colors.white} />
+            </View>
+          </View>
+        )}
+
         <View style={styles.container}>
-          <ScrollView>
+          <ScrollView
+            refreshControl={
+              <RefreshControl
+                refreshing={this.state.refreshing}
+                onRefresh={() => this.onRefresh()}
+              />
+            }>
             <View style={styles.categoriesContainer}>
               <View style={styles.titleContainer}>
                 <Heading6 style={styles.titleText}>Categories</Heading6>
@@ -248,8 +266,8 @@ async componentDidMount() {
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.categoriesList}>
-                 {(this.state.data)&&
-                   this.state.data.map(category => (
+                {categories &&
+                  categories.map((category) => (
                     <TouchableOpacity
                       activeOpacity={0.7}
                       key={category.id}
@@ -257,7 +275,10 @@ async componentDidMount() {
                       <View style={styles.categoryContainer}>
                         <ImageBackground
                           defaultSource={imgHolder}
-                          source={getImgSource('http://xnativesfoods.com/uploads/'+category.image)}
+                          source={getImgSource(
+                            'http://xnativesfoods.com/uploads/' +
+                              category.image,
+                          )}
                           style={styles.categoryThumbnail}
                           imageStyle={styles.categoryImg}>
                           <View style={styles.categoryName}>
@@ -268,9 +289,7 @@ async componentDidMount() {
                         </ImageBackground>
                       </View>
                     </TouchableOpacity>
-                  )) 
-                  }
-                
+                  ))}
               </ScrollView>
             </View>
 
@@ -282,17 +301,41 @@ async componentDidMount() {
                 onPress={this.navigateTo('SearchResults')}
               />
             </View>
-            {(this.state.products) &&
-            <FlatList
-              data={products}
-              keyExtractor={this.keyExtractor}
-              renderItem={this.renderProductItem}
-              ItemSeparatorComponent={this.renderSeparator}
-            />
-  }
+            {this.state.products && (
+              <FlatList
+                data={products}
+                keyExtractor={this.keyExtractor}
+                renderItem={this.renderProductItem}
+                ItemSeparatorComponent={this.renderSeparator}
+              />
+            )}
           </ScrollView>
         </View>
       </SafeAreaView>
     );
   }
 }
+
+const mapStateToProps = (state) => ({
+  error: state.auth.error,
+  loading: state.products.loadingProducts || state.products.loadingCategories,
+  products: state.products.products,
+  categories: state.products.categories,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  getProducts: () => dispatch(actions.getProducts()),
+  getCategories: () => dispatch(actions.getCategories()),
+});
+
+HomeB.propTypes = {
+  error: PropTypes.string,
+  loading: PropTypes.bool,
+  navigation: PropTypes.object,
+  getProducts: PropTypes.func,
+  getCategories: PropTypes.func,
+  products: PropTypes.array,
+  categories: PropTypes.array,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomeB);

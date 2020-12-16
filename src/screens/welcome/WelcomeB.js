@@ -8,6 +8,7 @@
 // import dependencies
 import React, {Component} from 'react';
 import {SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
+import PropTypes from 'prop-types';
 
 // import components
 import ContainedButton from '../../components/buttons/ContainedButton';
@@ -55,11 +56,6 @@ export default class WelcomeB extends Component {
     this.state = {};
   }
 
-  navigateTo = screen => () => {
-    const {navigation} = this.props;
-    navigation.navigate(screen);
-  };
-
   render() {
     return (
       <GradientContainer>
@@ -74,7 +70,7 @@ export default class WelcomeB extends Component {
 
           <View style={styles.buttonsGroup}>
             <ContainedButton
-              onPress={this.navigateTo('SignUp')}
+              onPress={this.props.navigation.navigate('SignUp')}
               color={Colors.white}
               title={'I am new'.toUpperCase()}
               titleColor={Colors.primaryColor}
@@ -83,7 +79,7 @@ export default class WelcomeB extends Component {
             <View style={styles.vspace16} />
 
             <OutlinedButton
-              onPress={this.navigateTo('SignIn')}
+              onPress={this.props.navigation.navigate('SignIn')}
               title={'I have been here'.toUpperCase()}
               titleColor={Colors.white}
               rippleColor={'rgba(255, 255, 255, 0.32)'}
@@ -93,7 +89,7 @@ export default class WelcomeB extends Component {
 
             <LinkButton
               title="Skip"
-              onPress={this.navigateTo('HomeNavigator')}
+              onPress={this.props.navigation.navigate('HomeNavigator')}
               titleStyle={styles.linkButtonText}
             />
           </View>
@@ -102,3 +98,7 @@ export default class WelcomeB extends Component {
     );
   }
 }
+
+WelcomeB.propTypes = {
+  navigation: PropTypes.object,
+};

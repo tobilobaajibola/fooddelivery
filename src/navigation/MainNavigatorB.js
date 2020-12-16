@@ -81,6 +81,9 @@ import Orders from '../screens/orders/OrdersB';
 // import AboutUs screen
 import AboutUs from '../screens/about/AboutUsB';
 
+// import Splash screen
+import Splash from '../screens/splash/Splash';
+
 // import colors
 import Colors from '../theme/colors';
 
@@ -101,6 +104,7 @@ function MainNavigatorB() {
       ]}>
       <NavigationContainer>
         <Stack.Navigator
+          initialRouteName="Splash"
           screenOptions={{
             cardOverlayEnabled: false,
             cardShadowEnabled: false,
@@ -121,6 +125,11 @@ function MainNavigatorB() {
             headerTintColor: Colors.onPrimaryColor,
             headerTitleAlign: 'center',
           }}>
+          <Stack.Screen
+            name="Splash"
+            component={Splash}
+            options={{headerShown: false}}
+          />
           <Stack.Screen
             name="Onboarding"
             component={Onboarding}

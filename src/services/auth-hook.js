@@ -18,15 +18,15 @@ export const checkLoginStatus = async (hideSplashScreen, navigation) => {
 
 export const checkOnboardStatus = async (hideSplashScreen, navigation) => {
   try {
-    const onboarded = await AsyncStorage.getItem('onboarding');
+    const onboarded = await AsyncStorage.getItem('Onboarding');
     if (onboarded) {
       checkLoginStatus(hideSplashScreen, navigation);
     } else {
       hideSplashScreen();
-      return navigation.navigate('onboarding');
+      return navigation.navigate('Onboarding');
     }
   } catch (e) {
     hideSplashScreen();
-    return navigation.navigate('onboarding');
+    return navigation.navigate('Onboarding');
   }
 };

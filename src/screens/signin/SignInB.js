@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import PropTypes from 'prop-types';
+import AsyncStorage from '@react-native-community/async-storage';
 
 // import components
 import ContainedButton from '../../components/buttons/ContainedButton';
@@ -170,6 +171,7 @@ class SignInB extends Component {
 
       let response = await this.props.login(data);
       console.log(response);
+      AsyncStorage.setItem('token', 'true');
       this.props.navigation.navigate('HomeNavigator');
     } catch (e) {
       alert(e);
