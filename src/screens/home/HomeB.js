@@ -215,7 +215,7 @@ class HomeB extends Component {
       onPressAdd={this.onPressAdd(item)}
       key={index}
       activeOpacity={0.7}
-      imageUri={'http://xnativesfoods.com/uploads/' + item.image}
+      imageUri={'https://xnativesfoods.com/uploads/' + item.image}
       title={item.name}
       price={item.price}
       description={item.description}
@@ -276,7 +276,7 @@ class HomeB extends Component {
                         <ImageBackground
                           defaultSource={imgHolder}
                           source={getImgSource(
-                            'http://xnativesfoods.com/uploads/' +
+                            'https://xnativesfoods.com/uploads/' +
                               category.image,
                           )}
                           style={styles.categoryThumbnail}

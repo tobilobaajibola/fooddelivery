@@ -21,7 +21,11 @@ export const login = (data) => async (dispatch) => {
   dispatch(authStart());
 
   try {
-    const response = await axios.post('/login', data);
+    const response = await axios({
+      method: 'post',
+      url: '/login',
+      data,
+    });
     console.log(response.data);
     dispatch(authSuccess(response.data));
     return 'success';
@@ -34,7 +38,11 @@ export const register = (data) => async (dispatch) => {
   dispatch(authStart());
 
   try {
-    const response = await axios.post('/register', data);
+    const response = await axios({
+      method: 'post',
+      url: '/register',
+      data,
+    });
     console.log(response.data);
     dispatch(authSuccess(response.data));
     return 'success';

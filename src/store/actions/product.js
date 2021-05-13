@@ -19,7 +19,10 @@ export const getProducts = () => async (dispatch) => {
   dispatch(getProductStart());
 
   try {
-    const response = await axios.get('/products');
+    const response = await axios({
+      method: 'get',
+      url: '/products',
+    });
     console.log(response.data);
     dispatch(getProductSuccess(response.data.data.data));
     return 'success';
@@ -46,7 +49,10 @@ export const getCategories = () => async (dispatch) => {
   dispatch(getCategoriesStart());
 
   try {
-    const response = await axios.get('/categories');
+    const response = await axios({
+      method: 'get',
+      url: '/categories',
+    });
     console.log(response.data);
     dispatch(getCategoriesSuccess(response.data.data));
     return 'success';

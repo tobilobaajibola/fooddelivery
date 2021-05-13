@@ -28,6 +28,9 @@
     "ios": {
       "supportsTablet": true
     },
-    "description": "Xnatives Food"
+    "description": "Xnatives Food",
+    "android": {
+      "package": "host.exp.exponent"
+    }
   }
 }
